@@ -41,11 +41,11 @@ def list_entries_contained_query(query):
         if query in content:
             selected_entries.append(title)
 
-    urls = [f"http://localhost:8000/{entry}" for entry in selected_entries]
+    urls = [f"http://localhost:8000/entries/{entry}" for entry in selected_entries]
 
     entries_urls_map = {}
 
-    for entry, url in zip(entries, urls):
+    for entry, url in zip(selected_entries, urls):
         entries_urls_map[entry] = url
 
     return entries_urls_map
