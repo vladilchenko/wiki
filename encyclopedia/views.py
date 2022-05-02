@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from . import util
-from .forms import SearchForm
+from .forms import SearchForm, CreateEntryForm
 
 
 def index(request, form=None):
@@ -55,3 +55,25 @@ def search(request):
             return HttpResponseRedirect(reverse("encyclopedia:index"))
     else:
         return HttpResponseRedirect(reverse("encyclopedia:index"))
+
+def create_entry(request):
+    if request.method == "GET":
+        form = CreateEntryForm()
+        search_form = SearchForm()
+        return render(request, "encyclopedia/create_entry.html", {
+            "form": search_form,
+            "add_entry_form": form
+        })
+    elif request.method == "POST":
+        form = CreateEntryForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+            util.save_entry(title, content)
+            return HttpResponseRedirect(reverse("encyclopedia:show_entry", args=[title]))
+        else:
+            search_form = SearchForm()
+            return render(request, "encyclopedia/create_entry.html", {
+                "add_entry_form": form,
+                "form": search_form
+            })

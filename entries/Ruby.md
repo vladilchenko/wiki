@@ -1,0 +1,1 @@
+Cool programming language from Japan !
