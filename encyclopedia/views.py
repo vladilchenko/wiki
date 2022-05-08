@@ -16,6 +16,7 @@ def index(request, form=None):
 
 
 def show_entry(request, title: str):
+    title = title.replace("_", " ")
     entry = util.get_entry(title)
     form = SearchForm()
     if entry:
