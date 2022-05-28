@@ -4,10 +4,17 @@
     {{ title }}
 {% endblock %}
 
+{% block nav %}
+<div>
+    <a href="http://localhost:8000/edit_entry?title={{ title }}">Edit this entry</a>
+</div>
+
+{% endblock %}
+
 {% block body %}
     <h1>{{ title }}</h1>
-    <p>
+    <div>
         {{ entry }}
-    </p>
+    </div>
 
 {% endblock %}
