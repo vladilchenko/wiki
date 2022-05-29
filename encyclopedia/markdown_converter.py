@@ -1,35 +1,12 @@
-# headings, boldface text, unordered lists, links, and paragraphs
+# Module for translating simple Markdown formatted text to HTML
+# It supports:
+# - headings
+# - bold, italic text
+# - unordered and ordered lists
+# - links
+# - paragraphs
 
 import re
-
-
-text = """
-#Main heading
-## Sub heading
-### Sub sub heading
-**This should be bold**
-*this should be italic*
-___This is bold AND italic___
-[Some link](https://google.com)
-
-######Small heading
-- list_item1
-- list_item1
-- list_item1
-
-#####H5 heading
-1. Ordered item
-2. Ordered item2
-3. Ordered item3
-
-Paragraph1Paragraph1Paragraph1*Paragraph1*Paragraph1**Parag*raph1**Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1
-Paragraph1Paragraph1Paragraph1 [Some link](https://google.com) Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1
-
-
-Paragraph2Paragraph2Paragraph2**Paragraph**2Paragraph2Paragraph2
-Paragraph2**Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2
-Paragraph2*Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2Paragraph2
-"""
 
 # Common
 
@@ -90,9 +67,38 @@ def add_formatting_to_paragraph(paragraph: str) -> str:
 # Links
 
 def transform_link(line: str) -> str:
-    p = re.compile(r"\[(?P<name>.+)\]\((?P<url>.+)\)")
+    p = re.compile(r"\[(?P<name>.+?)\]\((?P<url>.+?)\)")
     line = p.sub("<a href='\g<url>'>\g<name></a>", line)
     return line
+
+# Unordered lists
+
+def check_line_is_list(line: str) -> bool:
+    return (line.startswith("- ") or line.startswith("* "))
+
+def create_list(l: str) -> str:
+    splitted_list = l.split("\n")
+    empty_str_filtered = filter(None, splitted_list)
+    html = "<ul>\n"
+    for line in empty_str_filtered:
+        html += f"<li>{line[2:]}</li>\n"
+    html += "</ul>\n\n"
+    return html
+
+# Ordered lists
+
+def check_line_is_ol(line: str) -> bool:
+    p = re.compile(r"\d\. (?P<item>.+)")
+    return p.match(line)
+
+def create_ol(l: str) -> str:
+    splitted_list = l.split("\n")
+    empty_str_filtered = filter(None, splitted_list)
+    html = "<ol>\n"
+    for line in empty_str_filtered:
+        html += f"<li>{line[3:]}</li>\n"
+    html += "</ol>\n\n"
+    return html
 
 # Paragraph function
 
@@ -110,6 +116,8 @@ def process_md(md: str) -> str:
 
     html_lines = []
     paragraph = ""
+    ul = ""
+    ol = ""
 
     for line in md_lines:
 
@@ -120,12 +128,29 @@ def process_md(md: str) -> str:
             html_lines.append(l)
             continue
 
+        # Unordered list check
+
+        if check_line_is_list(line):
+            ul += f"{line}\n"
+            continue
+        else:
+            if ul:
+                html_lines.append(create_list(ul))
+                ul = ""
+
+        # Ordered list check
+
+        if check_line_is_ol(line):
+            ol += f"{line}\n"
+            continue
+        else:
+            if ol:
+                html_lines.append(create_ol(ol))
+                ol = ""
+
         # URL check
 
         line = transform_link(line)
-
-
-
 
         # Paragraph check
 
@@ -146,6 +171,16 @@ def process_md(md: str) -> str:
             paragraph += f"<p>{line}"
             continue
     
-    return "".join(html_lines)
+    # Check if have started paragraph, ul or ol
+    if ul:
+        html_lines.append(create_list(ul))
 
-print(process_md(text))
+    if ol:
+        html_lines.append(create_ol(ol))
+
+    if paragraph:
+        paragraph += "</p>\n\n"
+        paragraph = add_formatting_to_paragraph(paragraph)
+        html_lines.append(paragraph)
+
+    return "".join(html_lines)

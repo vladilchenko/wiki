@@ -4,6 +4,7 @@ from django.shortcuts import render
 import random
 
 from . import util
+from . import markdown_converter
 from .forms import SearchForm, CreateEntryForm, EditEntryForm
 
 
@@ -19,7 +20,7 @@ def index(request, form=None):
 def show_entry(request, title: str):
     title = title.replace("_", " ")
     entry = util.get_entry(title)
-    html_entry = util.process_entry(entry)
+    html_entry = markdown_converter.process_md(entry)
     form = SearchForm()
     if entry:
         return render(request, "encyclopedia/entry.html", {

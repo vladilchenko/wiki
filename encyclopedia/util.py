@@ -95,10 +95,3 @@ def get_title_from_filename(fname: str) -> str:
     Substitue all "_" in filename to spaces
     """
     return fname.replace("_", " ")
-
-
-def process_entry(entry: str):
-    """
-    Convert Markdown entry content to HTML
-    """
-    # TODO use implemented markdown converter
