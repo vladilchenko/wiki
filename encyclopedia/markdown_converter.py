@@ -23,7 +23,7 @@ ___This is bold AND italic___
 3. Ordered item3
 
 Paragraph1Paragraph1Paragraph1*Paragraph1*Paragraph1**Parag*raph1**Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1
-Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1
+Paragraph1Paragraph1Paragraph1 [Some link](https://google.com) Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1Paragraph1
 
 
 Paragraph2Paragraph2Paragraph2**Paragraph**2Paragraph2Paragraph2
@@ -87,6 +87,12 @@ def add_formatting_to_paragraph(paragraph: str) -> str:
 
     return paragraph
 
+# Links
+
+def transform_link(line: str) -> str:
+    p = re.compile(r"\[(?P<name>.+)\]\((?P<url>.+)\)")
+    line = p.sub("<a href='\g<url>'>\g<name></a>", line)
+    return line
 
 # Paragraph function
 
@@ -114,7 +120,9 @@ def process_md(md: str) -> str:
             html_lines.append(l)
             continue
 
-        # Bold Italic check
+        # URL check
+
+        line = transform_link(line)
 
 
 
